@@ -1,5 +1,9 @@
 # PGE Dynamic Energy (HACS)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TWOJ_NICK/HA_PGE_DYNAMIC/main/custom_components/pge_dynamic/icon/icon.png" width="150" alt="PGE Dynamic Logo">
+</p>
+
 Ceny dynamiczne PGE (FIX_1) dla Home Assistant. 26 sensorów (24h + Min/Max) do inteligentnego ładowania magazynów energii i EV. Realne koszty brutto.
 
 ## Funkcje
