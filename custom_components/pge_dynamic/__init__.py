@@ -1,14 +1,11 @@
-"""Inicjalizacja integracji PGE Dynamic Energy."""
 import logging
 import async_timeout
 import aiohttp
 from datetime import datetime
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.const import Platform
-
 from .const import DOMAIN, API_URL, UPDATE_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,10 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unload_ok
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 class PGEDataCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, entry):
@@ -35,30 +29,36 @@ class PGEDataCoordinator(DataUpdateCoordinator):
         now = datetime.now()
         today = now.strftime("%Y-%m-%d")
         
-        params = {
-            "source": "TGE",
-            "contract": "Fix_1",
-            "date_from": f"{today} 00:00:00",
-            "date_to": f"{today} 23:59:59",
-            "limit": "100"
-        }
-
+        # Twoja dokładna logika z Node-RED
+        url = f"{API_URL}?source=TGE&contract=Fix_1&date_from={today} 00:00:00&date_to={today} 23:59:59&limit=100"
+        
         try:
-            async with async_timeout.timeout(20):
+            async with async_timeout.timeout(30):
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(API_URL, params=params) as response:
+                    async with session.get(url) as response:
                         if response.status != 200:
-                            raise UpdateFailed(f"Błąd API PGE: {response.status}")
+                            _LOGGER.error("PGE API zwróciło status: %s", response.status)
+                            raise UpdateFailed(f"Błąd API: {response.status}")
                         data = await response.json()
             
+            # Debugowanie - zapisze w logach co przyszło z PGE
+            _LOGGER.debug("Otrzymane dane z PGE: %s", data)
+            
             results = data if isinstance(data, list) else data.get("quotes", [])
+            if not results:
+                _LOGGER.warning("API PGE nie zwróciło żadnych cen na dziś (%s)", today)
+                return {"hourly": {}}
+
             prices = {}
             for item in results:
                 dt_str = item.get("date")
                 price_val = item.get("price")
                 if dt_str and price_val is not None:
+                    # Wyciąganie godziny z formatu "YYYY-MM-DD HH:MM:SS"
                     hour = int(dt_str.split(" ")[1].split(":")[0])
                     prices[hour] = float(price_val) / 1000.0
             return {"hourly": prices}
+            
         except Exception as err:
-            raise UpdateFailed(f"Błąd: {err}")
+            _LOGGER.error("Błąd podczas pobierania danych PGE: %s", err)
+            raise UpdateFailed(f"Błąd połączenia: {err}")
