@@ -1,34 +1,48 @@
-# PGE Dynamic Energy (HACS)
+# PGE Dynamic Energy dla Home Assistant
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/AllonGit/ha_pge_dynamic/main/custom_components/pge_dynamic/icon/icon.png" width="150" alt="PGE Dynamic Logo">
 </p>
 
-Ceny dynamiczne PGE (FIX_1) dla Home Assistant. 26 sensorów (24h + Min/Max) do inteligentnego ładowania magazynów energii i EV. Realne koszty brutto.
+Integracja pobierająca aktualne ceny energii elektrycznej z API PGE DataHub (Rynek Bilansujący). Dane są pobierane bezpośrednio z TGE (Towarowa Giełda Energii) przez bramkę PGE.
 
 ## Funkcje
-- **24 sensory godzinowe**: `sensor.pge_cena_00_00` do `sensor.pge_cena_23_00`.
-- **Sensory Min/Max**: `sensor.pge_cena_minimalna` oraz `sensor.pge_cena_maksymalna`.
-- **Koszty brutto**: Automatyczne doliczanie marży i 23% VAT do cen z API PGE DataHub.
-- **Optymalizacja**: Jedno pobranie danych co 15 minut dla wszystkich encji.
+- 24 sensory (po jednym na każdą godzinę doby).
+- Sensor ceny aktualnej.
+- **Automatyczne przeliczanie:** MWh na kWh.
+- **Podatek VAT:** Ceny zawierają podatek VAT 23%.
+- **Format:** PLN/kWh.
 
 ## Instalacja
-1. W HACS dodaj **Niestandardowe repozytorium**: https://github.com/AllonGit/ha_pge_dynamic
-2. Zainstaluj **PGE Dynamic Energy**.
-3. Zrestartuj Home Assistant.
-4. Dodaj integrację w **Ustawienia > Urządzenia oraz usługi**.
 
-## Przykład Automatyzacji (Magazyn Energii)
-Ładowanie magazynu, gdy cena jest najniższa w ciągu doby:
+### Metoda 1: HACS (Zalecana)
+1. Otwórz HACS w Home Assistant.
+2. Kliknij trzy kropki w prawym górnym rogu i wybierz **Custom repositories**.
+3. Wklej link do tego repozytorium i wybierz kategorię **Integration**.
+4. Zainstaluj `PGE Dynamic Energy`.
+5. Zrestartuj Home Assistant.
+
+### Metoda 2: Ręczna
+1. Skopiuj folder `custom_components/pge_dynamic` do folderu `config/custom_components/` w swoim Home Assistant.
+2. Zrestartuj Home Assistant.
+
+## Konfiguracja
+1. Wejdź w **Ustawienia** -> **Urządzenia oraz usługi**.
+2. Kliknij **Dodaj integrację** i wyszukaj `PGE Dynamic Energy`.
+3. Wybierz swoją taryfę (np. G1x).
+
+## Wykresy (ApexCharts)
+Aby uzyskać ładny wykres cen na całą dobę, zainstaluj `ApexCharts Card` z HACS i użyj poniższego kodu:
 
 ```yaml
-trigger:
-  - platform: template
-    value_template: "{{ states('sensor.pge_cena_aktualna') == states('sensor.pge_cena_minimalna') }}"
-action:
-  - service: switch.turn_on
-    target:
-      entity_id: switch.ladowarka_magazynu
-```
-
-Autor: Allon
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Ceny Energii PGE (brutto)
+  show_states: true
+  colorize_states: true
+series:
+  - entity: sensor.pge_cena_aktualna_brutto
+    type: column
+    data_generator: |
+      # Logika generowania wykresu z 24 sensorów godzinnych
