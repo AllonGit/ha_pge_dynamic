@@ -25,5 +25,6 @@ action:
   - service: switch.turn_on
     target:
       entity_id: switch.ladowarka_magazynu
+```
 
 Autor: Allon
