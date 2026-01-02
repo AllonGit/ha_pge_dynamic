@@ -9,7 +9,7 @@ Ceny dynamiczne PGE (FIX_1) dla Home Assistant. 26 sensorów (24h + Min/Max) do 
 - **Optymalizacja**: Jedno pobranie danych co 15 minut dla wszystkich encji.
 
 ## Instalacja
-1. W HACS dodaj **Niestandardowe repozytorium**: URL Twojego GitHub.
+1. W HACS dodaj **Niestandardowe repozytorium**: https://github.com/AllonGit/ha_pge_dynamic
 2. Zainstaluj **PGE Dynamic Energy**.
 3. Zrestartuj Home Assistant.
 4. Dodaj integrację w **Ustawienia > Urządzenia oraz usługi**.
