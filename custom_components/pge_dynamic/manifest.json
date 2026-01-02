@@ -3,7 +3,7 @@
   "name": "PGE Dynamic Energy",
   "codeowners": ["@AllonGit"],
   "config_flow": true,
-  "documentation": "https://github.com/AllonGit/ha-pge-dynamic",
+  "documentation": "https://github.com/AllonGit/ha_pge_dynamic",
   "iot_class": "cloud_polling",
   "version": "1.0.0"
 }
