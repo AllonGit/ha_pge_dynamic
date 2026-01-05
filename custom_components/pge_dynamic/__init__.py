@@ -12,53 +12,89 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Konfiguracja integracji po dodaniu przez interfejs."""
     coordinator = PGEDataCoordinator(hass, entry)
+    
+    # Pobierz pierwsze dane przy starcie
     await coordinator.async_config_entry_first_refresh()
+    
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Usunięcie integracji."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 class PGEDataCoordinator(DataUpdateCoordinator):
+    """Koordynator pobierający dane z PGE DataHub (Twoja sprawdzona logika)."""
+
     def __init__(self, hass, entry):
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=UPDATE_INTERVAL)
+        super().__init__(
+            hass, 
+            _LOGGER, 
+            name=DOMAIN, 
+            update_interval=UPDATE_INTERVAL
+        )
 
     async def _async_update_data(self):
+        """Pobieranie i procesowanie danych z API PGE."""
         now = datetime.now()
         today = now.strftime("%Y-%m-%d")
         
-        # Twoja dokładna logika z Node-RED
+        # Wypracowany format URL
         url = f"{API_URL}?source=TGE&contract=Fix_1&date_from={today} 00:00:00&date_to={today} 23:59:59&limit=100"
         
-        try:
-            async with async_timeout.timeout(30):
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        if response.status != 200:
-                            _LOGGER.error("PGE API zwróciło status: %s", response.status)
-                            raise UpdateFailed(f"Błąd API: {response.status}")
-                        data = await response.json()
-            
-            # Debugowanie - zapisze w logach co przyszło z PGE
-            _LOGGER.debug("Otrzymane dane z PGE: %s", data)
-            
-            results = data if isinstance(data, list) else data.get("quotes", [])
-            if not results:
-                _LOGGER.warning("API PGE nie zwróciło żadnych cen na dziś (%s)", today)
-                return {"hourly": {}}
+        # Nagłówki, które sprawiły, że PGE przestało blokować zapytania
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
 
+        try:
+            async with async_timeout.timeout(20):
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, headers=headers) as response:
+                        if response.status != 200:
+                            _LOGGER.error("PGE API Error: %s", response.status)
+                            raise UpdateFailed(f"Status błędu API: {response.status}")
+                        
+                        data = await response.json()
+
+            #LOGIKA PRZETWARZANIA DANYCH
             prices = {}
-            for item in results:
-                dt_str = item.get("date")
-                price_val = item.get("price")
-                if dt_str and price_val is not None:
-                    # Wyciąganie godziny z formatu "YYYY-MM-DD HH:MM:SS"
-                    hour = int(dt_str.split(" ")[1].split(":")[0])
-                    prices[hour] = float(price_val) / 1000.0
+            for item in data:
+                try:
+                    # Wyciąganie daty (używamy klucza date_time)
+                    dt_str = item.get('date_time')
+                    if not dt_str:
+                        continue
+                    
+                    # Konwersja napisu na obiekt daty,aby wyciągnąć godzinę
+                    dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                    hour = dt.hour
+                    
+                    # Parsowanie listy atrybutów 
+                    attributes = {attr['name']: attr['value'] for attr in item.get('attributes', [])}
+                    price_mwh = float(attributes.get('price', 0))
+                    
+                    # Przeliczenie na kWh (netto)
+                    prices[hour] = price_mwh / 1000.0
+                    
+                except (KeyError, ValueError, TypeError) as e:
+                    _LOGGER.debug("Pominięto niepełny wpis: %s", e)
+                    continue
+
+            if not prices:
+                # Jeśli dane na dziś nie są jeszcze dostępne
+                _LOGGER.warning("Brak aktualnych cen w PGE DataHub na dzień %s", today)
+                # Zwracamy to co mamy, żeby sensory nie zniknęły
+                if self.data:
+                    return self.data
+                raise UpdateFailed("Nie otrzymano żadnych danych cenowych.")
+
+            _LOGGER.info("Pomyślnie pobrano %s cen z PGE DataHub", len(prices))
             return {"hourly": prices}
-            
+
         except Exception as err:
-            _LOGGER.error("Błąd podczas pobierania danych PGE: %s", err)
+            _LOGGER.error("Błąd krytyczny podczas pobierania danych PGE: %s", err)
             raise UpdateFailed(f"Błąd połączenia: {err}")

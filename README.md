@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/AllonGit/ha_pge_dynamic/main/custom_components/pge_dynamic/icon/icon.png" width="150" alt="PGE Dynamic Logo">
 </p>
 
-Integracja pobierająca aktualne ceny energii elektrycznej z API PGE DataHub (Rynek Bilansujący). Dane są pobierane bezpośrednio z TGE (Towarowa Giełda Energii) przez bramkę PGE.
+Integracja pobierająca aktualne ceny energii elektrycznej z API PGE DataHub (Rynek Bilansujący). Dane są pobierane bezpośrednio z PGE przez bramkę PGE Datahub.
 
 ## Funkcje
 - 24 sensory (po jednym na każdą godzinę doby).

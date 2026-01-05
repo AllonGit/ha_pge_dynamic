@@ -1,19 +1,11 @@
-"""Sensory PGE Dynamic Energy - Wersja z VAT 23%."""
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from datetime import datetime
 from .const import DOMAIN
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Konfiguracja sensorów."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    sensors = []
-    
-    # Tworzymy 24 sensory godzinne
-    for hour in range(24):
-        sensors.append(PGEPriceSensor(coordinator, hour))
-    
-    # Sensor ceny aktualnej
+    sensors = [PGEPriceSensor(coordinator, h) for h in range(24)]
     sensors.append(PGECurrentPriceSensor(coordinator))
     async_add_entities(sensors)
 
@@ -29,10 +21,9 @@ class PGEPriceSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         prices = self.coordinator.data.get("hourly", {})
-        price = prices.get(self.hour)
-        if price is not None:
-            # Cena z PGE (netto) * 1.23 (VAT)
-            return round(float(price) * 1.23, 4)
+        price_netto = prices.get(self.hour)
+        if price_netto is not None:
+            return round(float(price_netto) * 1.23, 4)
         return None
 
 class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
@@ -47,8 +38,7 @@ class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         hour = datetime.now().hour
         prices = self.coordinator.data.get("hourly", {})
-        price = prices.get(hour)
-        if price is not None:
-            # Cena z PGE (netto) * 1.23 (VAT)
-            return round(float(price) * 1.23, 4)
+        price_netto = prices.get(hour)
+        if price_netto is not None:
+            return round(float(price_netto) * 1.23, 4)
         return None
