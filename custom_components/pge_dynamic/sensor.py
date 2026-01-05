@@ -1,20 +1,23 @@
-"""Sensory PGE Dynamic Energy - Wersja Cena Netto."""
+"""Sensory PGE Dynamic Energy - Wersja z obsługą atrybutów taryfy."""
 from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from datetime import datetime
-from .const import DOMAIN
+from .const import DOMAIN, CONF_TARIFF
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Konfiguracja sensorów po dodaniu integracji."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
+    
+    # Pobieramy taryfę z wpisu konfiguracyjnego
+    tariff = entry.data.get(CONF_TARIFF, "Nieokreślona")
     
     sensors = []
     # 24 sensory godzinne
     for hour in range(24):
         sensors.append(PGEPriceSensor(coordinator, hour))
     
-    # Sensor ceny aktualnej
-    sensors.append(PGECurrentPriceSensor(coordinator))
+    # Sensor ceny aktualnej (przekazujemy taryfę)
+    sensors.append(PGECurrentPriceSensor(coordinator, tariff))
     
     async_add_entities(sensors)
 
@@ -36,14 +39,14 @@ class PGEPriceSensor(CoordinatorEntity, SensorEntity):
         prices = self.coordinator.data.get("hourly", {})
         price_netto = prices.get(self.hour)
         if price_netto is not None:
-            # Zwracamy czystą cenę (PLN/kWh) bez mnożnika VAT
             return round(float(price_netto), 4)
         return None
 
 class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
-    """Sensor dla aktualnej godziny (Netto)."""
-    def __init__(self, coordinator):
+    """Sensor dla aktualnej godziny (Netto) z informacją o taryfie."""
+    def __init__(self, coordinator, tariff):
         super().__init__(coordinator)
+        self._tariff = tariff
         self._attr_name = "PGE Cena Aktualna"
         self._attr_unique_id = f"{DOMAIN}_current"
         self._attr_native_unit_of_measurement = "PLN/kWh"
@@ -60,3 +63,11 @@ class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
         if price_netto is not None:
             return round(float(price_netto), 4)
         return None
+
+    @property
+    def extra_state_attributes(self):
+        """Dodanie informacji o taryfie do atrybutów sensora."""
+        return {
+            "wybrana_taryfa": self._tariff,
+            "typ_ceny": "Netto (TGE Fix1)"
+        }
