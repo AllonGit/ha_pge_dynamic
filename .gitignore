@@ -1,5 +1,17 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.pytest_cache/
+
+# Home Assistant
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+# System
 .DS_Store
-.venv/
+.vscode/
+.idea/

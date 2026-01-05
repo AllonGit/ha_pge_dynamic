@@ -1,7 +1,10 @@
 {
   "name": "PGE Dynamic Energy",
-  "description": "Ceny dynamiczne PGE (FIX_1). 26 sensorów (24h + Min/Max) do magazynów energii.",
+  "description": "Ceny dynamiczne energii elektrycznej z PGE DataHub (TGE)",
   "category": "integration",
-  "domain": "pge_dynamic",
-  "homeassistant": "2024.1.0"
+  "version" : "1.0.0",
+  "homeassistant": "2024.1.0",
+  "render_readme": true,
+  "iot_class": "cloud_polling",
+  "country": "PL"
 }
