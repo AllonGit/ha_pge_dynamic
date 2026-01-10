@@ -75,10 +75,10 @@ trigger:
     entity_id: sensor.pge_cena_aktualna
     below: 0.45                        # Cena od której startujemy (np. 45 gr)
 action:
-  - service: switch.turn_on
+  - action: switch.turn_on
     target:
       entity_id: switch.deye_grid_charge # Przełącznik ładowania w falowniku (podaj switch włączania ładowania z sieci)
-  - service: notify.mobile_app_twoj_telefon # Powiadomienie na telefon(podaj swój serwis)
+  - action: notify.mobile_app_twoj_telefon # Powiadomienie na telefon
     data:
       title: "🔋 Start ładowania magazynu"
       message: "Cena spadła do {{ states('sensor.pge_cena_aktualna') }} PLN. Uruchamiam ładowanie magazynu."
@@ -94,10 +94,10 @@ trigger:
     entity_id: sensor.pge_cena_aktualna
     above: 0.55                        # Cena powyżej której kończymy (np. 55 gr)
 action:
-  - service: switch.turn_off
+  - action: switch.turn_off
     target:
       entity_id: switch.deye_grid_charge # Przełącznik ładowania w falowniku (ten sam co przy starcie)
-  - service: notify.mobile_app_twoj_telefon # Powiadomienie na telefon (podaj swój serwis)
+  - action: notify.mobile_app_twoj_telefon # Powiadomienie na telefon 
     data:
       title: "💰 Koniec ładowania"
       message: "Cena wzrosła do {{ states('sensor.pge_cena_aktualna') }} PLN. Wyłączam ładowanie z sieci."
@@ -113,7 +113,7 @@ trigger:
     entity_id: sensor.pge_cena_aktualna
     below: 0.45                        # Próg ceny dla powiadomienia (np. 45 gr)
 action:
-  - service: notify.mobile_app_twoj_telefon # Powiadomienie na telefon (podaj swój serwis)
+  - action: notify.mobile_app_twoj_telefon # Powiadomienie na telefon (podaj swój serwis)
     data:
       title: "🔋 Uwaga! Tani prąd"
       message: "Cena spadła do {{ states('sensor.pge_cena_aktualna') }} PLN. Możesz ręcznie włączyć ładowanie."
@@ -122,6 +122,27 @@ mode: single
 
 ## 📈 Pomóż w rozwoju projektu
 Jeśli korzystasz z tej integracji, proszę rozważ włączenie opcji **Analytics** w ustawieniach Twojego Home Assistant. Dzięki temu będę wiedział, ilu użytkowników korzysta z projektu, co daje mi ogromną motywację do dodawania nowych funkcji (np. wsparcia dla taryf G12/G12w).
+
+
+## 📸 Podgląd
+<p align="center">
+  <img src="./images/ApexCharts.png" alt="Podgląd wykresu ApexCharts" width="600">
+</p>
+
+## ❓ Rozwiązywanie problemów (Troubleshooting)
+
+#### Status unavailable: 
+API PGE DataHub aktualizuje dane o określonych godzinach. Jeśli sensor nie ma danych, sprawdź Ustawienia -> System -> Logi. Szukaj wpisów dotyczących pge_dynamic.
+
+#### Błąd importu w ApexCharts: 
+Upewnij się, że zainstalowałeś ApexCharts Card przez HACS.
+
+## Ważna informacja o cenach
+Cena w integracji to cena netto czystej energii (Rynek Bilansujący). Pamiętaj, że Twój ostateczny rachunek zawiera dodatkowo:
+
+Podatki (VAT, akcyza).
+
+Opłaty dystrybucyjne (zmienne i stałe).
 
 
 
