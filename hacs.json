@@ -7,6 +7,6 @@
   "render_readme": true,
   "iot_class": "cloud_polling",
   "country": "PL",
-  "content_in_root": true,
+  "content_in_root": false,
   "filename": "pge_dynamic"
 }
