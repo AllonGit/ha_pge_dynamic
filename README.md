@@ -173,6 +173,8 @@ Do you have questions, ideas for new features, or want to show off your dashboar
 | **v1.5.0** | **Reporting** | Savings statistics module vs. traditional flat-rate tariffs. |
 | **v1.6.x+** | **Intelligence** | Forecast.Solar synergy (PV production-based optimization). |
 
+</details>
+
 ## ❓ Troubleshooting
 Status unavailable:
 The PGE DataHub API updates data at specific times. If the sensor has no data, check Settings -> System -> Logs. Look for entries related to pge_dynamic.
