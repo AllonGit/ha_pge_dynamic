@@ -37,6 +37,15 @@ class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
         self._attr_native_unit_of_measurement = "PLN/kWh"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_state_class = SensorStateClass.TOTAL
+        self._attr_should_poll = True 
+
+    @property
+    def native_value(self):
+        hour = datetime.now().hour
+        if self.coordinator.data and "hourly" in self.coordinator.data:
+            val = self.coordinator.data["hourly"].get(hour)
+            return round(val, 4) if val is not None else None
+        return None
 
     @property
     def native_value(self):
