@@ -10,6 +10,156 @@
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AllonGit&repository=ha_pge_dynamic&category=integration)
 
+## 🌍 Language / Język
+
+<details>
+<summary><b>Click here for English version</b></summary>
+
+Integration that fetches current electricity prices (Balancing Market) directly from the official PGE DataHub API. This tool allows you to monitor market rates in real-time directly within your Home Assistant dashboard.
+
+<p align="center"> <img src="images/logo.png" alt="PGE Dynamic Energy Logo" width="600"> </p>
+
+## 🌟 Main Features
+* **UI Configuration:** Simple integration setup via the Home Assistant interface (Config Flow).
+
+* **Net Price:** Displays the current market rate in PLN/kWh.
+
+* **Accuracy:** Data fetched from the Fix_1 contract (Balancing Market).
+
+* **Full Day Coverage:** 24 separate hourly sensors (from 00:00 to 23:00).
+
+* **Current Sensor:** sensor.pge_cena_aktualna – price for the current hour.
+
+Optimization: Uses DataUpdateCoordinator for minimal system load.
+
+## 🚀 Installation
+Via HACS (Recommended)
+In Home Assistant, go to HACS -> Integrations.
+
+Click the three dots in the top right corner and select Custom repositories.
+
+Paste this repository URL: https://github.com/AllonGit/ha_pge_dynamic
+
+Select the Integration category and click Add.
+
+Find the integration in the list, click Download, and then restart Home Assistant.
+
+## ⚙️ Configuration
+Go to Settings -> Devices & Services.
+
+Click Add Integration and search for PGE Dynamic Energy.
+
+Enter a name and select your tariff (e.g., G1x).
+
+## 📊 Charts (ApexCharts)
+Example configuration for ApexCharts Card (displays hourly prices for the entire day):
+
+```yaml
+
+type: custom:apexcharts-card
+header:
+  show: true
+  title: PGE Energy Prices (Net)
+  show_states: true
+graph_span: 24h
+span:
+  start: day
+yaxis:
+  - decimals: 3
+series:
+  - entity: sensor.pge_cena_aktualna
+    type: column
+    color: "#ff9800"
+    float_precision: 3
+    data_generator: |
+      const prices = [];
+      for (let i = 0; i < 24; i++) {
+        const entity = `sensor.pge_cena_${i.toString().padStart(2, '0')}_00`;
+        const state = hass.states[entity];
+        if (state) {
+          prices.push([new Date().setHours(i, 0, 0, 0), parseFloat(state.state)]);
+        }
+      }
+      return prices;
+```
+
+
+## 💡 Example Automations
+Below you will find ready-to-use codes that you can copy to your Home Assistant (Settings -> Automations -> Create new -> Edit in YAML).
+
+#### Automation: START charging
+```yaml
+
+alias: "Storage - Start charging"
+description: "Turns on grid charging when the price is low"
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.pge_cena_aktualna
+    below: 0.45                        # Price at which we start (e.g., 0.45 PLN)
+action:
+  - action: switch.turn_on
+    target:
+      entity_id: switch.deye_grid_charge # Your inverter charging switch
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "🔋 Storage charging started"
+      message: "Price dropped to {{ states('sensor.pge_cena_aktualna') }} PLN. Starting storage charging."
+mode: single
+```
+#### Automation: STOP charging
+
+```yaml
+alias: "Storage - Stop charging"
+description: "Turns off grid charging when the price rises"
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.pge_cena_aktualna
+    above: 0.55                        # Price above which we stop (e.g., 0.55 PLN)
+action:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.deye_grid_charge # Your inverter charging switch
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "💰 Charging finished"
+      message: "Price rose to {{ states('sensor.pge_cena_aktualna') }} PLN. Stopping grid charging."
+mode: single
+```
+#### Automation: Phone Notification
+
+```yaml
+alias: "Storage - Notification Only"
+description: "Sends info about cheap energy without inverter interference"
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.pge_cena_aktualna
+    below: 0.45                        # Price threshold for notification
+action:
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "🔋 Warning! Cheap energy"
+      message: "Price dropped to {{ states('sensor.pge_cena_aktualna') }} PLN. You can manually start charging."
+mode: single
+```
+
+## ❓ Troubleshooting
+Status unavailable:
+The PGE DataHub API updates data at specific times. If the sensor has no data, check Settings -> System -> Logs. Look for entries related to pge_dynamic.
+
+Important Price Information
+The price in the integration is the net price of raw energy (Balancing Market). Remember that your final bill additionally includes:
+
+* Taxes (VAT, excise).
+
+* Distribution fees (variable and fixed).
+
+## ⚖️ License & Disclaimer
+Project released under the MIT License.
+
+Legal Note: This integration is open-source and for hobbyist use. Data is fetched from the publicly available PGE DataHub API. The author is not responsible for any data errors or financial decisions made based on this information. Always verify data with your energy provider.
+
+</details>
+
 Integracja pobierająca aktualne ceny energii elektrycznej (Rynek Bilansujący) bezpośrednio z oficjalnego API **PGE DataHub**. Narzędzie pozwala na monitorowanie stawek rynkowych w czasie rzeczywistym bezpośrednio w Twoim panelu Home Assistant.
 
 <p align="center">
