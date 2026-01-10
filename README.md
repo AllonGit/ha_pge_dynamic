@@ -67,6 +67,7 @@ Example configuration for ApexCharts Card (displays hourly prices for the entire
 
 ```yaml
 type: custom:apexcharts-card
+update_interval: 1min
 header:
   show: true
   title: Ceny Energii PGE (Netto)
@@ -78,16 +79,30 @@ yaxis:
   - decimals: 3
 series:
   - entity: sensor.pge_cena_aktualna
+    show:
+      in_chart: false
+      in_header: true
+    name: "Cena Aktualna"
+    float_precision: 3
+
+  - entity: sensor.pge_cena_aktualna
     type: column
     color: "#ff9800"
     float_precision: 3
+    show:
+      in_header: false
+      legend_value: false
     data_generator: |
       const prices = [];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       for (let i = 0; i < 24; i++) {
-        const entity = `sensor.pge_cena_${i.toString().padStart(2, '0')}_00`;
-        const state = hass.states[entity];
-        if (state) {
-          prices.push([new Date().setHours(i, 0, 0, 0), parseFloat(state.state)]);
+        const hourStr = i.toString().padStart(2, '0');
+        const entityId = `sensor.pge_cena_${hourStr}_00`;
+        const stateObj = hass.states[entityId];
+        if (stateObj) {
+          const timestamp = new Date(today).setHours(i, 0, 0, 0);
+          prices.push([timestamp, parseFloat(stateObj.state)]);
         }
       }
       return prices;
@@ -245,6 +260,7 @@ Przykład konfiguracji dla karty `ApexCharts Card` (wyświetla ceny godzinowe na
 
 ```yaml
 type: custom:apexcharts-card
+update_interval: 1min  # <--- To wymusi aktualizację karty co minutę
 header:
   show: true
   title: Ceny Energii PGE (Netto)
@@ -256,16 +272,30 @@ yaxis:
   - decimals: 3
 series:
   - entity: sensor.pge_cena_aktualna
+    show:
+      in_chart: false
+      in_header: true
+    name: "Cena Aktualna"
+    float_precision: 3
+
+  - entity: sensor.pge_cena_aktualna
     type: column
     color: "#ff9800"
     float_precision: 3
+    show:
+      in_header: false
+      legend_value: false
     data_generator: |
       const prices = [];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       for (let i = 0; i < 24; i++) {
-        const entity = `sensor.pge_cena_${i.toString().padStart(2, '0')}_00`;
-        const state = hass.states[entity];
-        if (state) {
-          prices.push([new Date().setHours(i, 0, 0, 0), parseFloat(state.state)]);
+        const hourStr = i.toString().padStart(2, '0');
+        const entityId = `sensor.pge_cena_${hourStr}_00`;
+        const stateObj = hass.states[entityId];
+        if (stateObj) {
+          const timestamp = new Date(today).setHours(i, 0, 0, 0);
+          prices.push([timestamp, parseFloat(stateObj.state)]);
         }
       }
       return prices;
