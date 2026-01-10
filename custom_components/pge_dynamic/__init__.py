@@ -46,9 +46,18 @@ class PGEDataCoordinator(DataUpdateCoordinator):
                 prices[dt.hour] = price_val / 1000
             
             if not prices:
-                raise UpdateFailed(f"Brak danych dla URL: {url}")
+                _LOGGER.warning(
+                    "API PGE nie zwróciło danych cenowych dla zapytania: %s. "
+                    "Może to oznaczać przerwę w publikacji danych przez PGE DataHub.", 
+                    url
+                )
 
             return {"hourly": prices}
+
         except Exception as e:
-            _LOGGER.error("Blad pobierania danych z PGE: %s", e)
-            raise UpdateFailed(f"Blad API: {e}")
+            _LOGGER.error(
+                "Błąd krytyczny podczas pobierania danych z PGE: %s. "
+                "Sprawdź połączenie z internetem oraz dostępność strony datahub.gkpge.pl.", 
+                e
+            )
+            raise UpdateFailed(f"Błąd połączenia z API PGE: {e}")

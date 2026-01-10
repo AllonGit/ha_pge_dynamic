@@ -1,10 +1,20 @@
-# PGE Dynamic Energy (Ceny Dynamiczne) dla Home Assistant
+# ⚡ PGE Dynamic Energy dla Home Assistant
+### Przestań przepłacać za prąd. Automatyzuj dom w oparciu o realne ceny rynkowe PGE.
+
+**Idealne dla posiadaczy magazynów energii, samochodów elektrycznych oraz każdego, kto chce obniżyć rachunki za energię.**
 
 ![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)
 ![version](https://img.shields.io/github/v/release/AllonGit/ha_pge_dynamic)
 ![license](https://img.shields.io/github/license/AllonGit/ha_pge_dynamic)
+![last_commit](https://img.shields.io/github/last-commit/AllonGit/ha_pge_dynamic?color=green)
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AllonGit&repository=ha_pge_dynamic&category=integration)
 
 Integracja pobierająca aktualne ceny energii elektrycznej (Rynek Bilansujący) bezpośrednio z oficjalnego API **PGE DataHub**. Narzędzie pozwala na monitorowanie stawek rynkowych w czasie rzeczywistym bezpośrednio w Twoim panelu Home Assistant.
+
+<p align="center">
+  <img src="images/logo.png" alt="PGE Dynamic Energy Logo" width="600">
+</p>
 
 ## 🌟 Główne Funkcje
 

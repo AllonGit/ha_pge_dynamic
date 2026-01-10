@@ -4,9 +4,7 @@
       "user": {
         "title": "Konfiguracja PGE",
         "data": {
-          "tariff": "Twoja taryfa",
-          "margin": "Marża (zł/kWh)",
-          "fee": "Opłata handlowa miesięczna (zostaw 0 dla domyślnej)"
+          "tariff": "Wybierz taryfę (np. G1x)"
         }
       }
     }

@@ -1,4 +1,8 @@
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.components.sensor import (
+    SensorEntity, 
+    SensorDeviceClass, 
+    SensorStateClass
+)
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from datetime import datetime
 from .const import DOMAIN
@@ -17,11 +21,13 @@ class PGEPriceSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_h_{hour}"
         self._attr_native_unit_of_measurement = "PLN/kWh"
         self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_state_class = SensorStateClass.TOTAL
 
     @property
     def native_value(self):
-        # Pobieranie ceny z koordynatora dla danej godziny
-        return round(self.coordinator.data["hourly"].get(self.hour, 0), 4)
+        # Pobieranie ceny z koordynatora. Jeśli brak danych dla godziny, zwraca None zamiast 0.
+        val = self.coordinator.data["hourly"].get(self.hour)
+        return round(val, 4) if val is not None else None
 
 class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator):
@@ -30,9 +36,12 @@ class PGECurrentPriceSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_current"
         self._attr_native_unit_of_measurement = "PLN/kWh"
         self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_state_class = SensorStateClass.TOTAL
 
     @property
     def native_value(self):
-        # Dynamiczne pobieranie ceny dla obecnej godziny systemowej
+        # Dynamiczne pobieranie ceny dla obecnej godziny systemowej.
+        # Jeśli brak danych w koordynatorze, zwraca None (stan unavailable).
         hour = datetime.now().hour
-        return round(self.coordinator.data["hourly"].get(hour, 0), 4)
+        val = self.coordinator.data["hourly"].get(hour)
+        return round(val, 4) if val is not None else None
