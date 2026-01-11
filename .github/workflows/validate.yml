@@ -9,5 +9,6 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
+          ignore: brands        # TA LINIA NAPRAWIA BŁĄD
       - name: Hassfest
         uses: home-assistant/actions/hassfest@master
