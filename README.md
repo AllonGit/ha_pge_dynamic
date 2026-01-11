@@ -153,18 +153,19 @@ mode: single
 #### Automation: Phone Notification
 
 ```yaml
-alias: "Storage - Notification Only"
-description: "Sends info about cheap energy without inverter interference"
+alias: "Notification: Low Energy Price"
+description: "Sends a notification when the energy price drops below a set threshold"
 trigger:
   - platform: numeric_state
     entity_id: sensor.pge_cena_aktualna
-    below: 0.45                        # Price threshold for notification
+    below: 0.45  # Price threshold (e.g., 0.45 PLN)
 action:
-  - action: notify.mobile_app_your_phone
+  - action: notify.mobile_app_your_phone_name # Replace with your actual mobile app notify service
     data:
-      title: "🔋 Warning! Cheap energy"
-      message: "Price dropped to {{ states('sensor.pge_cena_aktualna') }} PLN. You can manually start charging."
-mode: single
+      title: "💰 Low Energy Price!"
+      message: >
+        The current energy price is {{ states('sensor.pge_cena_aktualna') }} PLN/kWh. 
+        It's a great time to run high-energy appliances!
 ```
 
 ## 💬 Community and Support
@@ -260,7 +261,7 @@ Przykład konfiguracji dla karty `ApexCharts Card` (wyświetla ceny godzinowe na
 
 ```yaml
 type: custom:apexcharts-card
-update_interval: 1min  # <--- To wymusi aktualizację karty co minutę
+update_interval: 1min
 header:
   show: true
   title: Ceny Energii PGE (Netto)
@@ -345,17 +346,19 @@ mode: single
 #### Automatyzacja: Powiadomienie na telefon
 
 ```yaml
-alias: "Magazyn - Tylko powiadomienie"
-description: "Wysyła info o taniej energii bez ingerencji w falownik"
+alias: "Powiadomienie: Tani prąd"
+description: "Wysyła info, gdy cena energii spadnie poniżej ustalonego progu"
 trigger:
   - platform: numeric_state
     entity_id: sensor.pge_cena_aktualna
-    below: 0.45                        # Próg ceny dla powiadomienia (np. 45 gr)
+    below: 0.45  # Próg ceny (np. 0.45 PLN)
 action:
-  - action: notify.mobile_app_twoj_telefon # Powiadomienie na telefon (podaj swój serwis)
+  - action: notify.mobile_app_twoj_telefon # Pamiętaj, aby wpisać tu nazwę swojego telefonu
     data:
-      title: "🔋 Uwaga! Tani prąd"
-      message: "Cena spadła do {{ states('sensor.pge_cena_aktualna') }} PLN. Możesz ręcznie włączyć ładowanie."
+      title: "💰 Niska cena energii!"
+      message: >
+        Aktualna cena prądu to {{ states('sensor.pge_cena_aktualna') }} PLN/kWh. 
+        To dobry moment na włączenie pralki lub zmywarki!Cena spadła do {{ states('sensor.pge_cena_aktualna') }} PLN. Możesz ręcznie włączyć ładowanie."
 mode: single
 ```
 
