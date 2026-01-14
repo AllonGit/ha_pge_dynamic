@@ -2,10 +2,79 @@
   "config": {
     "step": {
       "user": {
-        "title": "Konfiguracja PGE",
+        "title": "Tryb Pracy Integracji",
+        "description": "Wybierz, jak ma działać integracja.\n- 'Tryb Dynamiczny': Dostarcza tylko aktualne i prognozowane ceny rynkowe.\n- 'Tryb Porównawczy': Pozwala dodatkowo na porównanie kosztów z taryfami G12 i G12w.",
         "data": {
-          "tariff": "Wybierz taryfę (np. G1x)"
+          "operation_mode": "Tryb pracy"
         }
+      },
+      "comparison_config": {
+        "title": "Konfiguracja Trybu Porównawczego",
+        "description": "Wybierz swój główny sensor zużycia energii. Jest on opcjonalny. Jeśli go podasz, integracja obliczy realne koszty w PLN. Jeśli go pominiesz, integracja porówna średnie ceny taryf.",
+        "data": {
+          "energy_sensor": "Sensor zużycia energii (Opcjonalny)"
+        }
+      },
+      "g12_config": {
+        "title": "Konfiguracja Taryfy G12",
+        "description": "Wprowadź swoje stawki (netto) dla taryfy G12 oraz godziny obowiązywania strefy szczytowej.",
+        "data": {
+          "price_peak": "Cena w szczycie (PLN/kWh)",
+          "price_offpeak": "Cena poza szczytem (PLN/kWh)",
+          "hours_peak": "Godziny szczytu (np. 6-13,15-22)"
+        }
+      },
+      "g12w_config": {
+        "title": "Konfiguracja Taryfy G12w",
+        "description": "Wprowadź swoje stawki (netto) dla taryfy G12w oraz godziny szczytu w dni robocze. Weekendy i święta są automatycznie traktowane jako strefa pozaszczytowa.",
+        "data": {
+          "price_peak": "Cena w szczycie (PLN/kWh)",
+          "price_offpeak": "Cena poza szczytem (PLN/kWh)",
+          "hours_peak": "Godziny szczytu (np. 6-13,15-22)"
+        }
+      }
+    },
+    "error": {
+      "invalid_hour_range": "Nieprawidłowy format godzin. Użyj formatu '6-13,15-22'."
+    },
+    "abort": {
+      "already_configured": "Urządzenie jest już skonfigurowane."
+    }
+  },
+  "options": {
+    "step": {
+      "comparison_config": {
+        "title": "Zmień Ustawienia Trybu Porównawczego",
+        "description": "Możesz tutaj zmienić swój sensor zużycia energii.",
+        "data": {
+          "energy_sensor": "Sensor zużycia energii (Opcjonalny)"
+        }
+      },
+      "g12_config": {
+        "title": "Zmień Ustawienia Taryfy G12",
+        "description": "Zaktualizuj swoje stawki (netto) dla taryfy G12 oraz godziny strefy szczytowej.",
+        "data": {
+          "price_peak": "Cena w szczycie (PLN/kWh)",
+          "price_offpeak": "Cena poza szczytem (PLN/kWh)",
+          "hours_peak": "Godziny szczytu (np. 6-13,15-22)"
+        }
+      },
+      "g12w_config": {
+        "title": "Zmień Ustawienia Taryfy G12w",
+        "description": "Zaktualizuj swoje stawki (netto) dla taryfy G12w oraz godziny szczytu w dni robocze.",
+        "data": {
+          "price_peak": "Cena w szczycie (PLN/kWh)",
+          "price_offpeak": "Cena poza szczytem (PLN/kWh)",
+          "hours_peak": "Godziny szczytu (np. 6-13,15-22)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "operation_mode": {
+      "options": {
+        "dynamic": "Tryb Dynamiczny (tylko ceny rynkowe)",
+        "comparison": "Tryb Porównawczy (ceny rynkowe + G12/G12w)"
       }
     }
   }

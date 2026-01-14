@@ -1,63 +1,33 @@
-import logging
-import async_timeout
-from datetime import datetime, timedelta
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from .const import DOMAIN, API_URL, UPDATE_INTERVAL
+# custom_components/pge_dynamic/__init__.py
+"""Integracja PGE Dynamic Energy dla Home Assistant."""
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
-_LOGGER = logging.getLogger(__name__)
+from .coordinator import PGEDataCoordinator
+from .const import DOMAIN
 
-async def async_setup_entry(hass, entry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Konfiguruje integrację na podstawie wpisu konfiguracyjnego."""
+    # Tworzenie i inicjalizacja koordynatora danych
     coordinator = PGEDataCoordinator(hass)
     await coordinator.async_config_entry_first_refresh()
+
+    # Przechowanie koordynatora w globalnym obszarze danych hass
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+
+    # Przekazanie konfiguracji do platformy sensorów
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+
+    # Nasłuchiwanie na zmiany w opcjach, aby przeładować integrację
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
     return True
 
-class PGEDataCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass):
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=UPDATE_INTERVAL)
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Odładowuje wpis konfiguracyjny."""
+    # Odładowanie platformy sensorów
+    return await hass.config_entries.async_unload_platforms(entry, ["sensor"])
 
-    async def _async_update_data(self):
-        # Generowanie URL
-        now = datetime.now()
-        yesterday_str = (now - timedelta(days=1)).strftime("%Y-%m-%d")
-        url = f"{API_URL}?source=TGE&contract=Fix_1&date_from={yesterday_str} 00:00:00&date_to={yesterday_str} 23:59:59&limit=100"
-        
-        try:
-            session = async_get_clientsession(self.hass)
-            async with async_timeout.timeout(20):
-                response = await session.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-                data = await response.json()
-
-            prices = {}
-            for item in data:
-                # Parsowanie godziny
-                dt = datetime.strptime(item['date_time'], "%Y-%m-%d %H:%M:%S")
-                
-                # Wyciąganie ceny z atrybutów
-                price_val = 0
-                for attr in item.get('attributes', []):
-                    if attr['name'] == 'price':
-                        price_val = float(attr['value'])
-                        break
-                
-                # Konwersja MWh -> kWh
-                prices[dt.hour] = price_val / 1000
-            
-            if not prices:
-                _LOGGER.warning(
-                    "API PGE nie zwróciło danych cenowych dla zapytania: %s. "
-                    "Może to oznaczać przerwę w publikacji danych przez PGE DataHub.", 
-                    url
-                )
-
-            return {"hourly": prices}
-
-        except Exception as e:
-            _LOGGER.error(
-                "Błąd krytyczny podczas pobierania danych z PGE: %s. "
-                "Sprawdź połączenie z internetem oraz dostępność strony datahub.gkpge.pl.", 
-                e
-            )
-            raise UpdateFailed(f"Błąd połączenia z API PGE: {e}")
+async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
+    """Obsługuje aktualizacje opcji konfiguracyjnych."""
+    await hass.config_entries.async_reload(entry.entry_id)

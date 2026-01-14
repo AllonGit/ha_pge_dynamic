@@ -6,5 +6,6 @@
   "documentation": "https://github.com/AllonGit/ha_pge_dynamic",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/AllonGit/ha_pge_dynamic/issues",
-  "version": "1.1.2"
+  "version": "1.3.0",
+  "requirements": ["holidays"]
 }
