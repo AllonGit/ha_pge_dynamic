@@ -2,7 +2,5 @@
   "name": "Energy Hub Poland",
   "homeassistant": "2024.1.0",
   "render_readme": true,
-  "country": "PL",
-  "content_in_root": false,
-  "filename": "energy_hub"
+  "country": "PL"
 }
