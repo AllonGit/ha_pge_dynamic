@@ -11,6 +11,8 @@
 ![version](https://img.shields.io/github/v/release/AllonGit/energy_hub_poland?label=version)
 ![license](https://img.shields.io/github/license/AllonGit/energy_hub_poland?label=license)
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AllonGit&repository=energy_hub_poland&category=integration)
+
 <p align="center">
   <img src="images/dark_logo.png" alt="Energy Hub Poland Logo" width="600">
 </p>
@@ -110,6 +112,8 @@ The integration retrieves data from the publicly available PGE DataHub API. The 
 ![version](https://img.shields.io/github/v/release/AllonGit/energy_hub_poland?label=wersja)
 ![license](https://img.shields.io/github/license/AllonGit/energy_hub_poland?label=licencja)
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AllonGit&repository=energy_hub_poland&category=integration)
+
 <p align="center">
   <img src="images/dark_logo.png" alt="Energy Hub Poland Logo" width="600">
 </p>
@@ -145,6 +149,10 @@ Idealne odwzorowanie Twojej umowy z operatorem.
 2.  Menu (3 kropki) -> **Niestandardowe repozytoria**.
 3.  Dodaj URL: `https://github.com/AllonGit/energy_hub_poland`
 4.  Pobierz integrację i zrestartuj Home Assistant.
+
+Lub kliknij w ten przycisk
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AllonGit&repository=energy_hub_poland&category=integration)
 
 ### Krok 2: Konfiguracja
 Wejdź w **Ustawienia** -> **Urządzenia oraz usługi** -> **Dodaj integrację** -> **Energy Hub Poland**.
